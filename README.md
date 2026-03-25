@@ -4,7 +4,7 @@ Team 11: The Cleric Dogs
 
 Smriti Kumar, sk3452
 
-Trishia Khandelwal
+Trishia Khandelwal, tk735
 
 Urja Saha, us64
 
