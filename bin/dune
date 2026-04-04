@@ -1,0 +1,4 @@
+(executable
+ (public_name quizcaml)
+ (name main)
+ (libraries quizcaml))
