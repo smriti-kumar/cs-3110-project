@@ -73,19 +73,21 @@ let show_definition (card : flashcard) =
   print_flashcard (snd card)
 
 let review_card (card : flashcard) =
-  show_term card;
+  show_definition card;
   print_string "Press s to skip, press any other key to flip: ";
   flush stdout;
   let skip = String.lowercase_ascii (read_line ()) in
+  print_endline "";
   if skip = "s" then (card, false, false, Low)
   else (
-    show_definition card;
+    show_term card;
     print_string "Did you know this? (y/n): ";
     flush stdout;
     let right = String.lowercase_ascii (read_line ()) in
     let correct = right = "y" in
     print_string "Rate your confidence (l for low/m for medium/h for high): ";
     let conf = String.lowercase_ascii (read_line ()) in
+    print_endline "";
     let confidence =
       match conf with
       | "h" -> High
@@ -94,5 +96,48 @@ let review_card (card : flashcard) =
     in
     (card, true, correct, confidence))
 
-let review_session (cards : flashcard list) =
-  List.map review_card cards
+let print_stats (stats : review_stats list) =
+  let percent =
+    List.fold_left
+      (fun acc (_, _, known, _) -> if known then acc + 1 else acc)
+      0 stats
+    * 100 / List.length stats
+  in
+  if percent == 100 then print_string "Congrats! Perfect session. "
+  else if percent >= 70 then print_string "Nice work! "
+  else print_string "Keep practicing! ";
+  print_endline (string_of_int percent ^ "% of cards known.");
+  List.iter
+    (fun ((term, def), flipped, known, conf) ->
+      let status = if known then "Known" else "Unknown" in
+      let confidence =
+        match conf with
+        | High -> "High"
+        | Medium -> "Medium"
+        | Low -> "Low"
+      in
+      print_endline (term ^ " - " ^ status ^ " (Confidence: " ^ confidence ^ ")"))
+    stats
+
+let rec optimal_order (stats : review_stats list) =
+  List.map
+    (fun (card, _, _, _) -> card)
+    (List.filter (fun (_, _, _, conf) -> conf = Low) stats
+    @ List.filter (fun (_, _, _, conf) -> conf = Medium) stats
+    @ List.filter (fun (_, _, _, conf) -> conf = High) stats)
+
+let rec review_session (acc : review_stats list) (cards : flashcard list) =
+  match cards with
+  | [] -> print_stats (List.rev acc)
+  | h :: t -> review_session (review_card h :: acc) t
+
+(* Functionalities to implement: - In review_session or review_card, each time
+   they don't know something or skip something add to end of list so that it has
+   to be reviewed again - This requires using a hashmap for review_stats so that
+   we can easily update card stats - Also at the end of each review_session
+   export results to a csv along with id of what session this was - Also
+   requires tracking in a hash map of how many times this set has been reviewed
+   - If this isn't the first review session, need to load previous review stats
+   from the csv just for the previous session and put cards in the most optimal
+   order - If this isn't the first review session, compare performance against
+   previous sessions *)
