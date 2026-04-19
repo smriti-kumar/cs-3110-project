@@ -7,8 +7,12 @@ type confidence =
   | Medium
   | High
 
+(* flashcard, confidence level, number of reviews - default flashcard, Low, 0 *)
 type flashcard_record = flashcard * confidence * int
-type review_stats = flashcard * bool * int
+
+(* flashcard, flipped, known, confidence level - default flashcard, false,
+   false, Low *)
+type review_stats = flashcard * bool * bool * confidence
 
 let clear () =
   if Sys.os_type = "Unix" then ignore (Sys.command "clear")
@@ -60,8 +64,35 @@ let print_flashcard (text : string) =
 
 let show_term (card : flashcard) =
   clear ();
+  print_endline "Term:";
   print_flashcard (fst card)
 
 let show_definition (card : flashcard) =
   clear ();
+  print_endline "Definition:";
   print_flashcard (snd card)
+
+let review_card (card : flashcard) =
+  show_term card;
+  print_string "Press s to skip, press any other key to flip: ";
+  flush stdout;
+  let skip = String.lowercase_ascii (read_line ()) in
+  if skip = "s" then (card, false, false, Low)
+  else (
+    show_definition card;
+    print_string "Did you know this? (y/n): ";
+    flush stdout;
+    let right = String.lowercase_ascii (read_line ()) in
+    let correct = right = "y" in
+    print_string "Rate your confidence (l for low/m for medium/h for high): ";
+    let conf = String.lowercase_ascii (read_line ()) in
+    let confidence =
+      match conf with
+      | "h" -> High
+      | "m" -> Medium
+      | _ -> Low
+    in
+    (card, true, correct, confidence))
+
+let review_session (cards : flashcard list) =
+  List.map review_card cards
