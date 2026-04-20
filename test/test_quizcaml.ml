@@ -1,16 +1,15 @@
 open OUnit2
 open Quizcaml.Matching_game_logic
 
-(*Helper method to initialize game from beginning in test suite*)
+(*Helper method to initialize game from beginning in test suite. Doesn't impact
+  field values in user version*)
 let help_start () : unit =
   begin
     num_corr := 0;
     num_inc := 0;
-    (*Manually set empty array values for now*)
+    (*Manually set empty array values for now- fill based on each test*)
     for i = 0 to 9 do
-      game_arr.(i) <- ("", "");
-      word_arr.(i) <- "";
-      def_arr.(i) <- ""
+      game_arr.(i) <- ("", "")
     done
   end
 
