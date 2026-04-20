@@ -21,7 +21,7 @@ let sample_terms : (string * string) list =
     ("Term15", "Def15");
   ]
 
-(*Hold all chosen words used for the game*)
+(*Hold all 10 word+def pairs chosen for the game*)
 let game_arr : (string * string) array = Array.make 10 ("", "")
 
 (*Hold words*)
@@ -35,6 +35,9 @@ let word_assn : (int * string) array = Array.make 10 (0, "")
 
 (*Hold char-def associations*)
 let def_assn : (string * string) array = Array.make 10 ("z", "")
+
+(*Hold number of incorrect matching attempts*)
+let num_inc : int ref = ref 0
 
 (*Array.make ideal_length default_elem*)
 (*Array.iter function array*)
@@ -56,22 +59,44 @@ let assign_print () : unit =
     let all_strs : string array =
       [| "a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"; "i"; "j" |]
     in
+    Array.shuffle ~rand:Random.int def_arr;
     for i = 0 to 9 do
-      def_assn.(i) <- (all_strs.(i), word_arr.(i))
+      (*Shuffle order of elements in def_arr*)
+      def_assn.(i) <- (all_strs.(i), def_arr.(i))
     done
-    (*Check assignments*)
-    (* print_endline "Word assignments";
-    print_endline
-      (Array.fold_left
-         (fun acc (num, word) -> acc ^ string_of_int num ^ ": " ^ word ^ "; ")
-         "" word_assn);
-
-    print_endline "Def assignments";
-    print_endline
-      (Array.fold_left
-         (fun acc (str, def) -> acc ^ str ^ ": " ^ def ^ "; ")
-         "" def_assn); *)
   end
+
+(*Check if a guess is correct and update remaining match choices + score accordingly*)
+(*As of now, requires the guess is valid*)
+let check_guess (guess : string) : bool =
+  let guess_info : string list = String.split_on_char ' ' guess in
+  let word_num : int = int_of_string (List.nth guess_info 0) in
+  let def_str : string = List.nth guess_info 1 in
+  (*find word guessed from word_assn array*)
+  let word_val : string = snd word_assn.(word_num - 1) in
+  (*find def guessed from def_assn based on associated string*)
+  (*find index for that guess in def_assn*)
+  let def_str_index : int =
+    Option.get (Array.find_index (fun (c, def) -> c = def_str) def_assn)
+  in
+  let def_val : string = snd def_assn.(def_str_index) in
+  (*Check correctness*)
+  let corr : bool =
+    Array.for_all
+      (fun (word, def) ->
+        begin if word = word_val then
+          begin if def = def_val then true
+          else begin
+            (*increase count of incorrect guesses*)
+            num_inc := !num_inc + 1;
+            false
+          end
+          end
+        else true
+        end)
+      game_arr
+  in
+  corr
 
 let start_game_logic () : unit =
   begin
