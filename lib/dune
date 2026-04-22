@@ -1,3 +1,5 @@
 (library
  (name quizcaml)
- (libraries mula batteries csv))
+ (libraries mula batteries csv)
+ (instrumentation (backend bisect_ppx))
+ )
