@@ -1,4 +1,10 @@
+open Quizcaml.Flashcard_review
+open Quizcaml.Matching_game_frontend
+open Quizcaml.Flashcards
 open At.Testing
+
+let () = run ()
+
 (*In order to play the test activity the Mula library must be installed.*)
 
 let test_question (td : string * string) (num : int) : string list =
