@@ -6,8 +6,8 @@ Then run the following commands in terminal:\
 opam install csv\
 opam install mula\
 opam install batteries\
-opam install ounit2\
+opam install ounit2
 
 Then, in the terminal, run the following commands in the given order: \
 dune build\
-dune exec quizcaml\
+dune exec quizcaml
