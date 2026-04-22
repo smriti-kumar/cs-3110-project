@@ -16,6 +16,20 @@ let help_start () : unit =
     done
   end
 
+let small_test_list =
+  [
+    ("Apple", "Red fruit");
+    ("Orange", "Orange fruit");
+    ("Lettuce", "Green vegetable");
+    ("Carrot", "Orange vegetable");
+    ("Mango", "Yellow fruit");
+    ("Grape", "Purple fruit");
+    ("Rainbow Chard", "Rainbow fruit");
+    ("Watermelon", "Green fruit");
+    ("Potato", "Yellow vegetable");
+    ("Eggplant", "Purple vegetable");
+  ]
+
 let test_gen_tests =
   "test suite"
   >::: [
@@ -349,16 +363,7 @@ let flashcard_tests =
                  ^ "]"
            in
            let filename = "../data/small_test.csv" in
-           let expected =
-             Some
-               [
-                 ("Apple", "Red fruit");
-                 ("Orange", "Orange fruit");
-                 ("Lettuce", "Green vegetable");
-                 ("Carrot", "Orange vegetable");
-                 ("Mango", "Yellow fruit");
-               ]
-           in
+           let expected = Some small_test_list in
            let loaded = read_cards filename in
            assert_equal ~printer:print_card_list_opt expected loaded );
          ( "[add_card_from_input curr term def] adds a flashcard (term, def) \
@@ -368,26 +373,9 @@ let flashcard_tests =
              let card_to_string (t, d) = "(" ^ t ^ ", " ^ d ^ ")" in
              "[" ^ String.concat "; " (List.map card_to_string lst) ^ "]"
            in
-           let curr =
-             [
-               ("Apple", "Red fruit");
-               ("Orange", "Orange fruit");
-               ("Lettuce", "Green vegetable");
-               ("Carrot", "Orange vegetable");
-               ("Mango", "Yellow fruit");
-             ]
-           in
+           let curr = small_test_list in
            let modified = add_card_from_input curr "Strawberries" "Red fruit" in
-           let expected =
-             [
-               ("Strawberries", "Red fruit");
-               ("Apple", "Red fruit");
-               ("Orange", "Orange fruit");
-               ("Lettuce", "Green vegetable");
-               ("Carrot", "Orange vegetable");
-               ("Mango", "Yellow fruit");
-             ]
-           in
+           let expected = ("Strawberries", "Red fruit") :: small_test_list in
            assert_equal ~printer:print_card_list expected modified );
          ( "[remove_card_from_input curr rem_term] removes all flashcards\n\
            \            with  term rem_term from the curr list of flashcards"
@@ -396,15 +384,7 @@ let flashcard_tests =
              let card_to_string (t, d) = "(" ^ t ^ ", " ^ d ^ ")" in
              "[" ^ String.concat "; " (List.map card_to_string lst) ^ "]"
            in
-           let curr =
-             [
-               ("Apple", "Red fruit");
-               ("Orange", "Orange fruit");
-               ("Lettuce", "Green vegetable");
-               ("Carrot", "Orange vegetable");
-               ("Mango", "Yellow fruit");
-             ]
-           in
+           let curr = small_test_list in
            let modified = remove_card_from_input curr "Lettuce" in
            let expected =
              [
@@ -412,10 +392,20 @@ let flashcard_tests =
                ("Orange", "Orange fruit");
                ("Carrot", "Orange vegetable");
                ("Mango", "Yellow fruit");
+               ("Grape", "Purple fruit");
+               ("Rainbow Chard", "Rainbow fruit");
+               ("Watermelon", "Green fruit");
+               ("Potato", "Yellow vegetable");
+               ("Eggplant", "Purple vegetable");
              ]
            in
            assert_equal ~printer:print_card_list expected modified );
        ]
 
-let tests = "test suite" >::: [ matching_tests; flashcard_tests; flashcard_review_tests; test_gen_tests ]
+let tests =
+  "test suite"
+  >::: [
+         matching_tests; flashcard_tests; flashcard_review_tests; test_gen_tests;
+       ]
+
 let _ = run_test_tt_main tests
