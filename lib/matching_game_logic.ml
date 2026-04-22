@@ -3,24 +3,31 @@
 (*Give correct/inc*)
 (*Assumes for each word, there is only 1 def*)
 
-let sample_terms : (string * string) list =
-  [
-    ("Term1", "Def1");
-    ("Term2", "Def2");
-    ("Term3", "Def3");
-    ("Term4", "Def4");
-    ("Term5", "Def5");
-    ("Term6", "Def6");
-    ("Term7", "Def7");
-    ("Term8", "Def8");
-    ("Term9", "Def9");
-    ("Term10", "Def10");
-    ("Term11", "Def11");
-    ("Term12", "Def12");
-    ("Term13", "Def13");
-    ("Term14", "Def14");
-    ("Term15", "Def15");
-  ]
+let sample_terms : (string * string) list ref =
+  ref
+    [
+      ("Term1", "Def1");
+      ("Term2", "Def2");
+      ("Term3", "Def3");
+      ("Term4", "Def4");
+      ("Term5", "Def5");
+      ("Term6", "Def6");
+      ("Term7", "Def7");
+      ("Term8", "Def8");
+      ("Term9", "Def9");
+      ("Term10", "Def10");
+      ("Term11", "Def11");
+      ("Term12", "Def12");
+      ("Term13", "Def13");
+      ("Term14", "Def14");
+      ("Term15", "Def15");
+    ]
+
+(*Set the value of cards used*)
+let set_flashcards_value (flashcards_list : (string * string) list) : unit =
+  begin
+    sample_terms := flashcards_list
+  end
 
 (*Hold all 10 word+def pairs chosen for the game*)
 let game_arr : (string * string) array = Array.make 10 ("", "")
@@ -124,9 +131,10 @@ let check_guess (guess : string) : bool =
   in
   corr
 
-let start_game_logic () : unit =
+let start_game_logic (flashcards_list : (string * string) list) : unit =
   begin
-    let terms_arr : (string * string) array = Array.of_list sample_terms in
+    set_flashcards_value flashcards_list;
+    let terms_arr : (string * string) array = Array.of_list !sample_terms in
     (*Initialize random*)
     let () = Random.self_init () in
     Array.shuffle ~rand:Random.int terms_arr;

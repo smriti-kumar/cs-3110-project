@@ -36,10 +36,12 @@ let round_loop () : unit =
    ^ "\n Incorrect matches: " ^ string_of_int !num_inc)
 
 (*Startup matching*)
-let start_matching () : unit =
+let start_matching (flashcards : (string * string) list) :
+    (string * string) list =
   begin
     print_endline
       "\n\nMatch each word on the left to a definition on the right\n\n";
-    start_game_logic ();
-    round_loop ()
+    start_game_logic flashcards;
+    round_loop ();
+    flashcards
   end

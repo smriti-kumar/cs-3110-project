@@ -113,7 +113,7 @@ let matching_tests =
                  "" arr)
              expected_def_assn !def_assn );
        ]
-       
+
 let flashcard_tests =
   "test suite"
   >::: [
@@ -199,6 +199,5 @@ let flashcard_tests =
            assert_equal ~printer:print_card_list expected modified );
        ]
 
-let tests = "test suite" >::: [ matching_tests ; flashcard_tests ]
-
+let tests = "test suite" >::: [ matching_tests; flashcard_tests ]
 let _ = run_test_tt_main tests

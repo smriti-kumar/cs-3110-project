@@ -133,4 +133,6 @@ let run () =
     done;
     if !choice = Some 1 then caml_cards := add_card !caml_cards
     else if !choice = Some 2 then caml_cards := remove_card !caml_cards
+    else if !choice = Some 3 then
+      caml_cards := Matching_game_frontend.start_matching !caml_cards
   done
