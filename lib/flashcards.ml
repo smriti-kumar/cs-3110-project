@@ -135,7 +135,10 @@ let run () =
     else if !choice = Some 2 then caml_cards := remove_card !caml_cards
     else if !choice = Some 3 then
       caml_cards := Matching_game_frontend.start_matching !caml_cards
-    else if !choice = Some 5 then print_endline "Name the set you would like to review: ";
-                         let input_name = read_line () in
-                         caml_cards := Flashcard_review.review_session !caml_cards input_name
+    else if !choice = Some 4 then
+      caml_cards := Quiztest.test_activity !caml_cards
+    else if !choice = Some 5 then
+      print_endline "Name the set you would like to review: ";
+    let input_name = read_line () in
+    caml_cards := Flashcard_review.review_session !caml_cards input_name
   done
