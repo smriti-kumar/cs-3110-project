@@ -1,5 +1,5 @@
 (library
  (name quizcaml)
  (libraries mula batteries csv)
- (instrumentation (backend bisect_ppx))
- )
+ (instrumentation
+  (backend bisect_ppx)))
