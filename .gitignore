@@ -2,3 +2,4 @@ _build/
 _opam/
 _coverage/
 .DS_Store
+flashcard_review_stats/*.csv
