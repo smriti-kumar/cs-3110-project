@@ -1,5 +1,5 @@
 open Quizcaml.Flashcard_review
+open Quizcaml.Matching_game_frontend
+open Quizcaml.Flashcards
 
-(* example flashcard set for testing purposes only *)
-let example = [ ("2", "1 + 1"); ("4", "2 + 2"); ("6", "3 + 3") ]
-let result = review_session example "additions"
+let () = run ()

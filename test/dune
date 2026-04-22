@@ -1,3 +1,4 @@
 (test
  (name test_quizcaml)
- (libraries ounit2 quizcaml))
+ (libraries ounit2 quizcaml)
+ (deps (glob_files_rec ../data/*)))
