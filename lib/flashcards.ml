@@ -50,13 +50,6 @@ let upload_cards () : card_list option =
 let add_card_from_input curr term def : card_list =
   (String.trim term, String.trim def) :: curr
 
-let add_card (curr : card_list) : card_list =
-  print_string "Please enter the term for the card you want to add: ";
-  let term = read_line () in
-  print_string "Please enter the definition for the card you want to add: ";
-  let def = read_line () in
-  add_card_from_input curr term def
-
 let remove_card_from_input curr rem_term : card_list =
   let rec remove_term (lst : (string * string) list) acc =
     match lst with
@@ -66,10 +59,3 @@ let remove_card_from_input curr rem_term : card_list =
         else remove_term t ((term, def) :: acc)
   in
   List.rev (remove_term curr [])
-
-(* As of now, this removes all cards in the list with that term. Can be changed
-   depending on how we want to handle duplicates.*)
-let remove_card (curr : card_list) : card_list =
-  print_string "Please enter the term of the card you want to remove ";
-  let rem_term = String.trim (read_line ()) in
-  remove_card_from_input curr rem_term

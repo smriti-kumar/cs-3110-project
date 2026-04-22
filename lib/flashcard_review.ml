@@ -14,16 +14,6 @@ type flashcard_record = flashcard * confidence * int
    false, Low *)
 type review_stats = flashcard * bool * bool * confidence
 
-let clear () =
-  if Sys.os_type = "Unix" then ignore (Sys.command "clear")
-  else ignore (Sys.command "cls")
-
-let rec print_dash (n : int) =
-  if n == 1 then print_string "-"
-  else (
-    print_string "-";
-    print_dash (n - 1))
-
 let string_to_words (s : string) : string list = String.split_on_char ' ' s
 
 let wrap_string (s : string) (width : int) : string list =
@@ -43,58 +33,6 @@ let center_string (s : string) (width : int) : string =
   let left = String.make padding ' ' in
   let right = String.make (width - padding - String.length s) ' ' in
   left ^ s ^ right
-
-let print_flashcard (text : string) =
-  let width = 50 in
-  let wrapped = wrap_string text (width - 6) in
-  print_dash width;
-  print_endline "";
-  print_endline ("|" ^ String.make (width - 2) ' ' ^ "|");
-  print_endline ("|" ^ String.make (width - 2) ' ' ^ "|");
-  List.iter
-    (fun line ->
-      print_string "| ";
-      print_string (center_string line (width - 4));
-      print_endline " |")
-    wrapped;
-  print_endline ("|" ^ String.make (width - 2) ' ' ^ "|");
-  print_endline ("|" ^ String.make (width - 2) ' ' ^ "|");
-  print_dash width;
-  print_endline ""
-
-let show_term (card : flashcard) =
-  clear ();
-  print_endline "Term:";
-  print_flashcard (fst card)
-
-let show_definition (card : flashcard) =
-  clear ();
-  print_endline "Definition:";
-  print_flashcard (snd card)
-
-let print_stats (stats : review_stats list) =
-  let percent =
-    List.fold_left
-      (fun acc (_, _, known, _) -> if known then acc + 1 else acc)
-      0 stats
-    * 100 / List.length stats
-  in
-  if percent == 100 then print_string "Congrats! Perfect session. "
-  else if percent >= 70 then print_string "Nice work! "
-  else print_string "Keep practicing! ";
-  print_endline (string_of_int percent ^ "% of cards known.");
-  List.iter
-    (fun ((term, def), flipped, known, conf) ->
-      let known_status = if known then "Known" else "Unknown" in
-      let flipped_status = if flipped then "Flipped" else "Unflipped" in
-      let confidence =
-        match conf with
-        | High -> "High"
-        | Medium -> "Medium"
-        | Low -> "Low"
-      in
-      print_endline ("Term: " ^ term ^ ", Definition: " ^ def ^ " - " ^ known_status ^ ", " ^ flipped_status ^ ", Confidence: " ^ confidence))
-    stats
 
 let rec optimal_order (stats : review_stats list) =
   List.map
