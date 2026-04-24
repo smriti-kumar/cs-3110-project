@@ -256,8 +256,7 @@ let run () =
     if !choice = Some 1 then caml_cards := add_card !caml_cards
     else if !choice = Some 2 then caml_cards := remove_card !caml_cards
     else if !choice = Some 3 then caml_cards := start_matching !caml_cards
-    else if !choice = Some 4 then
-      caml_cards := test_activity !caml_cards
+    else if !choice = Some 4 then caml_cards := test_activity !caml_cards
     else if !choice = Some 5 then (
       print_endline "Name the set you would like to review: ";
       let input_name = read_line () in
