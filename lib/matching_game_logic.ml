@@ -50,6 +50,21 @@ let num_inc : int ref = ref 0
 (*Hold number of correct matching attempts*)
 let num_corr : int ref = ref 0
 
+(*In case of repeated matching games with same user, reset everything to initial
+  state*)
+let reset_game () : unit =
+  begin
+    num_inc := 0;
+    num_corr := 0;
+    word_assn := Array.make 10 (0, "");
+    def_assn := Array.make 10 ("z", "");
+    for i = 0 to 9 do
+      game_arr.(i) <- ("", "");
+      word_arr.(i) <- "";
+      def_arr.(i) <- ""
+    done
+  end
+
 (*Randomly choose 10 word-def pairs*)
 
 (*Associate each element in word_arr and def_arr with a character*)
@@ -133,6 +148,7 @@ let check_guess (guess : string) : bool =
 
 let start_game_logic (flashcards_list : (string * string) list) : unit =
   begin
+    reset_game ();
     set_flashcards_value flashcards_list;
     let terms_arr : (string * string) array = Array.of_list !sample_terms in
     (*Initialize random*)

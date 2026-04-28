@@ -356,7 +356,18 @@ let run () =
     done;
     if !choice = Some 1 then caml_cards := add_card !caml_cards
     else if !choice = Some 2 then caml_cards := remove_card !caml_cards
-    else if !choice = Some 3 then caml_cards := start_matching !caml_cards
+    else if !choice = Some 3 then
+      caml_cards :=
+        if List.length !caml_cards < 10 then begin
+          print_endline
+            ("\n\n\
+              Must have at least 10 flashcards to do matching game. \n\
+              Add at least "
+            ^ string_of_int (10 - List.length !caml_cards)
+            ^ " additional cards to play");
+          !caml_cards
+        end
+        else start_matching !caml_cards
     else if !choice = Some 4 then caml_cards := test_activity !caml_cards
     else if !choice = Some 5 then (
       print_endline "Name the set you would like to review: ";

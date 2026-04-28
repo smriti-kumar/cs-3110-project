@@ -1,0 +1,3 @@
+session,term,definition,flipped,known,confidence
+1,"a","b",true,false,Low
+2,"c","d",false,true,High

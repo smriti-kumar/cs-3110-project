@@ -346,6 +346,66 @@ let matching_tests =
                  (fun acc (str, elem) -> acc ^ str ^ " = " ^ elem ^ " ; ")
                  "" arr)
              expected_def_assn !def_assn );
+         (*Check that sample_terms is set to flashcards passed in*)
+         ( "check sample_terms" >:: fun _ ->
+           help_start ();
+           let sample_flashcards : (string * string) list =
+             [
+               ("1", "one");
+               ("2", "two");
+               ("3", "green three");
+               ("4", "four");
+               ("5", "five");
+               ("6", "six");
+               ("7", "seven");
+               ("8", "eight");
+               ("9", "nine");
+               ("10", "ten");
+             ]
+           in
+           (*attemp updating terms_arr*)
+           set_flashcards_value sample_flashcards;
+           assert_equal
+             ~printer:(fun lst ->
+               List.fold_left
+                 (fun acc (word, def) -> acc ^ word ^ ": " ^ def ^ "; ")
+                 "" lst)
+             !sample_terms sample_flashcards );
+         (*Test assign print with word values*)
+         ( "check assign_print words" >:: fun _ ->
+           help_start ();
+           (*Make word_assn and def_assn to original value*)
+           word_assn := Array.make 10 (0, "");
+           def_assn := Array.make 10 ("z", "");
+           (*define elements for word_arr*)
+           let sample_words : string array =
+             [| "1"; "2"; "3"; "4"; "5"; "6"; "7"; "8"; "9"; "10" |]
+           in
+           for i = 0 to 9 do
+             word_arr.(i) <- sample_words.(i)
+           done;
+           assign_print ();
+           let expected : (int * string) array =
+             [|
+               (1, "1");
+               (2, "2");
+               (3, "3");
+               (4, "4");
+               (5, "5");
+               (6, "6");
+               (7, "7");
+               (8, "8");
+               (9, "9");
+               (10, "10");
+             |]
+           in
+           assert_equal
+             ~printer:(fun lst ->
+               Array.fold_left
+                 (fun acc (num, word) ->
+                   acc ^ string_of_int num ^ ": " ^ word ^ "; ")
+                 "" lst)
+             expected !word_assn );
        ]
 
 let flashcard_tests =
