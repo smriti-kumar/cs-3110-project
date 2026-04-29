@@ -55,7 +55,7 @@ let start_matching (flashcards : (string * string) list) :
 (* flashcard review frontend *)
 
 let clear () =
-  if Sys.os_type = "Unix" then ignore (Sys.command "clear")
+  if Sys.os_type = "Unix" then ignore (Sys.command "clear -x")
   else ignore (Sys.command "cls")
 
 let rec print_dash (n : int) =
