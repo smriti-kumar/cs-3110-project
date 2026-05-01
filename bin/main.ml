@@ -100,7 +100,10 @@ let print_stats (stats : review_stats list) =
     * 100 / List.length stats
   in
   if percent == 100 then print_string "Congrats! Perfect session. "
+  else if percent >= 90 then print_string "Excellent work! "
+  else if percent >= 80 then print_string "Great job! "
   else if percent >= 70 then print_string "Nice work! "
+  else if percent >= 50 then print_string "You're getting there! "
   else print_string "Keep practicing! ";
   print_endline (string_of_int percent ^ "% of cards known.");
   List.iter
@@ -117,6 +120,24 @@ let print_stats (stats : review_stats list) =
         ("Term: " ^ term ^ ", Definition: " ^ def ^ " - " ^ known_status ^ ", "
        ^ flipped_status ^ ", Confidence: " ^ confidence))
     stats
+
+let print_progress_history (filename : string) =
+  if not (Sys.file_exists filename) then
+    print_endline "No previous sessions found."
+  else
+    let history = load_all filename in
+    let group_hist = group_sessions history in
+    print_endline "\nProgress History:\n";
+    List.iter
+      (fun (session, stats) ->
+        let acc = session_known stats in
+        let low, med, high = session_confidence stats in
+        Printf.printf
+          "Session %d: %.2f%% known | Low Confidence: %.2f%% | Medium \
+           Confidence: %.2f%% | High Confidence: %.2f%%\n"
+          session acc low med high)
+      group_hist;
+    print_endline ""
 
 let review_card (card : string * string) =
   show_definition card;
@@ -329,8 +350,7 @@ let run () =
   let caml_cards = ref (starter ()) in
   while true do
     print_endline
-      "\n\
-      \ Please choose one of the following games/actions and enter your choice \
+      "\nPlease choose one of the following games/actions and enter your choice \
        below: ";
     print_endline "(1) Add a card";
     print_endline "(2) Remove a card";
@@ -372,7 +392,14 @@ let run () =
     else if !choice = Some 5 then (
       print_endline "Name the set you would like to review: ";
       let input_name = read_line () in
-      caml_cards := review_session !caml_cards input_name)
+      let filename =
+        "flashcard_review_stats/" ^ input_name ^ "_flashcard_stats.csv"
+      in
+      print_endline "\n(1) Start review session\n(2) View progress history\n";
+      print_string "Your choice: ";
+      let subchoice = read_int () in
+      if subchoice = 1 then caml_cards := review_session !caml_cards input_name
+      else print_progress_history filename)
   done
 
 (* main driver *)
