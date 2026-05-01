@@ -3,11 +3,7 @@ type confidence =
   | Medium
   | High
 
-(* flashcard, confidence level, number of reviews - default flashcard, Low, 0 *)
 type flashcard_record = (string * string) * confidence * int
-
-(* flashcard, flipped, known, confidence level - default flashcard, false,
-   false, Low *)
 type review_stats = (string * string) * bool * bool * confidence
 
 let string_to_words (s : string) : string list = String.split_on_char ' ' s
