@@ -221,6 +221,27 @@ let review_session (cards : (string * string) list) (name : string) =
 (* test generation frontend *)
 
 (*In order to play the test activity the Mula library must be installed.*)
+let rec valid_count (size : int) : int =
+  let input = read_line () in
+  if
+    String.for_all
+      (fun x ->
+        List.exists
+          (fun y -> x = y)
+          [ '0'; '1'; '2'; '3'; '4'; '5'; '6'; '7'; '8'; '9' ])
+      input
+    = false
+  then (
+    print_endline
+      ("Please enter a valid integer from 1 to " ^ string_of_int size ^ "!");
+    valid_count size)
+  else if int_of_string input > 0 && int_of_string input <= size then
+    int_of_string input
+  else (
+    print_endline
+      ("Please enter a valid integer from 1 to " ^ string_of_int size ^ "!");
+    valid_count size)
+
 let test_question (td : string * string) (num : int) (mode : int) : string list
     =
   if mode = 1 then
@@ -246,39 +267,60 @@ let test_question (td : string * string) (num : int) (mode : int) : string list
         let guess = read_line () in
         [ guess; j; correctness guess j; "TERM"; i ]
 
+let rec mcq_printer (choices : string list) (n : int) =
+  if n >= 3 then print_endline ("4) " ^ List.nth choices 3)
+  else
+    let () =
+      print_endline (string_of_int (n + 1) ^ ") " ^ List.nth choices n)
+    in
+    mcq_printer choices (n + 1)
+
+let mcq_question (tdlist : (string * string) list) (question : int) (num : int)
+    (mode : int) =
+  if mode = 1 then
+    let team = mcq_builder question tdlist mode in
+    match team with
+    | i, j ->
+        let ans = List.nth j 0 in
+        let ques = List.nth j 1 in
+        let () =
+          print_endline "";
+          print_endline ("Definition " ^ string_of_int (num + 1) ^ ": " ^ ques);
+          print_endline "";
+          print_endline "Choose the correct term:"
+        in
+        let () = mcq_printer i 0 in
+        let guess = List.nth i (valid_count 4 - 1) in
+        [ guess; ans; correctness guess ans; "DEFINITION"; ques ]
+  else
+    let team = mcq_builder question tdlist mode in
+    match team with
+    | i, j ->
+        let ans = List.nth j 0 in
+        let ques = List.nth j 1 in
+        let () =
+          print_endline "";
+          print_endline ("Term " ^ string_of_int (num + 1) ^ ": " ^ ques);
+          print_endline "";
+          print_endline "Choose the correct definition:"
+        in
+        let () = mcq_printer i 0 in
+        let guess = List.nth i (valid_count 4 - 1) in
+        [ guess; ans; correctness guess ans; "TERM"; ques ]
+
 let rec test_activity_loop (tdlist : (string * string) list) (rlist : int list)
-    (acc : 'a list) (num : int) (count : int) (mode : int) : string list list =
+    (acc : 'a list) (num : int) (count : int) (mode : int) (gtype : int) :
+    string list list =
+  let eureka = [ mode; mode; ran_num count ] in
   if num = count then acc
-  else if mode = 3 then
-    let ran = ran_num count in
-    let question = List.nth tdlist (List.nth rlist num) in
-    let gar = test_question question (num + 1) ran in
-    test_activity_loop tdlist rlist (gar :: acc) (num + 1) count mode
+  else if gtype = 2 then
+    let question = List.nth rlist num in
+    let gar = mcq_question tdlist question num (List.nth eureka (mode - 1)) in
+    test_activity_loop tdlist rlist (gar :: acc) (num + 1) count mode gtype
   else
     let question = List.nth tdlist (List.nth rlist num) in
-    let gar = test_question question (num + 1) mode in
-    test_activity_loop tdlist rlist (gar :: acc) (num + 1) count mode
-
-let rec valid_count (size : int) : int =
-  let input = read_line () in
-  if
-    String.for_all
-      (fun x ->
-        List.exists
-          (fun y -> x = y)
-          [ '0'; '1'; '2'; '3'; '4'; '5'; '6'; '7'; '8'; '9' ])
-      input
-    = false
-  then (
-    print_endline
-      ("Please enter a valid integer from 1 to " ^ string_of_int size ^ "!");
-    valid_count size)
-  else if int_of_string input > 0 && int_of_string input <= size then
-    int_of_string input
-  else (
-    print_endline
-      ("Please enter a valid integer from 1 to " ^ string_of_int size ^ "!");
-    valid_count size)
+    let gar = test_question question (num + 1) (List.nth eureka (mode - 1)) in
+    test_activity_loop tdlist rlist (gar :: acc) (num + 1) count mode gtype
 
 let rec results_loop (num : int) (count : int) (scantron : string list list) =
   if num >= count then print_endline "Good Effort!"
@@ -300,6 +342,24 @@ let rec results_loop (num : int) (count : int) (scantron : string list list) =
     print_endline "";
     results_loop (num + 1) count scantron)
 
+let mcq_validation (length : int) : int =
+  if length < 4 then (
+    print_endline "";
+    print_endline
+      "Since there are less than 4 term/definition pairs in your set, you \n\
+       can only have Type in the Answer questions. In order to choose \n\
+       between Multiple Choice and Type in the Answer questions, please \n\
+       have 4 or more pairs in your set.";
+    1)
+  else
+    let () =
+      print_endline "";
+      print_endline "Pick a question type:";
+      print_endline "1) Type in the Answers";
+      print_endline "2) Multiple Choice"
+    in
+    valid_count 2
+
 let test_activity (tdlist : (string * string) list) =
   let () =
     print_endline "";
@@ -309,7 +369,10 @@ let test_activity (tdlist : (string * string) list) =
        get a\n\
        question right, you must input what correctly corresponds to the given\n\
        term/definition. Once all questions have been answered, you will be able\n\
-       to see your grade, as well as what questions you got right and wrong.";
+       to see your grade, as well as what questions you got right and wrong."
+  in
+  let gtype = mcq_validation (List.length tdlist) in
+  let () =
     print_endline "";
     print_endline "Pick a game mode:";
     print_endline "1) Given the definitions, have to respond with terms";
@@ -328,7 +391,7 @@ let test_activity (tdlist : (string * string) list) =
   let count = valid_count (List.length tdlist) in
   let rlist = ran_list [] (List.length tdlist) count in
   let scantron =
-    BatList.transpose (test_activity_loop tdlist rlist [] 0 count mode)
+    BatList.transpose (test_activity_loop tdlist rlist [] 0 count mode gtype)
   in
   let grade = grader (List.nth scantron 2) count in
   let () = results_loop 0 count scantron in

@@ -44,3 +44,27 @@ let grader (scores : string list) (count : int) : string list =
   [ string_of_int cqs; string_of_int perc ]
 
 let speak (s : string) : string = if s = "1" then "RIGHT" else "WRONG"
+
+let access (p : string * string) (mode : int) : string =
+  match p with
+  | i, j -> if mode = 1 then i else j
+
+let accesstwo (p : string * string) (mode : int) : string list =
+  match p with
+  | i, j -> if mode = 1 then [ i; j ] else [ j; i ]
+
+let rec mcq_set (acc : string list) (key : int list) (keychain : int list)
+    (tdlist : (string * string) list) (mode : int) (n : int) : string list =
+  if n >= 4 then acc
+  else
+    let choice =
+      access (List.nth tdlist (List.nth key (List.nth keychain n))) mode
+    in
+    mcq_set (choice :: acc) key keychain tdlist mode (n + 1)
+
+let mcq_builder (answer : int) (tdlist : (string * string) list) (mode : int) :
+    string list * string list =
+  let key = ran_list [ answer ] (List.length tdlist) 3 in
+  let keychain = ran_list [] 4 4 in
+  ( mcq_set [] key keychain tdlist mode 0,
+    accesstwo (List.nth tdlist answer) mode )
